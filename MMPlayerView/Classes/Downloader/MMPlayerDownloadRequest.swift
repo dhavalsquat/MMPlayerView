@@ -70,7 +70,7 @@ class MMPlayerDownloadRequest {
         let range = CMTimeRange(start: CMTime(value: 0, timescale: 1000), end: asset.duration)
         let composition = AVMutableComposition()
         do {
-            try composition.insertTimeRange(range, of: asset, at: CMTime.zero)
+            try composition.insertTimeRange(range, of: asset, at: kCMTimeZero)
         } catch {
             return
         }
