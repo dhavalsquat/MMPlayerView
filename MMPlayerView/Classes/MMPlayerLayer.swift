@@ -128,6 +128,8 @@ public class MMPlayerLayer: AVPlayerLayer {
     }
     public var coverView: (UIView & MMPlayerCoverViewProtocol)?
     public var autoPlay = true
+    public var isForceMute = false
+    public var isStopped = false
     public var currentPlayStatus: PlayStatus = .unknown {
         didSet {
             if let block = self.playStatusBlock {
@@ -144,7 +146,9 @@ public class MMPlayerLayer: AVPlayerLayer {
                 }
                 self.thumbImageView.isHidden = false
                 self.coverView?.isHidden = false
-                if UserDefaults.standard.object(forKey: "videoVol") != nil {
+                if isForceMute {
+                    self.player?.isMuted = true
+                } else if UserDefaults.standard.object(forKey: "videoVol") != nil {
                     self.player?.isMuted = UserDefaults.standard.object(forKey: "videoVol") as? Bool ?? false
                 }
                 if self.autoPlay {
@@ -167,6 +171,7 @@ public class MMPlayerLayer: AVPlayerLayer {
     }
     fileprivate var asset: AVURLAsset?
     public var cacheType: PlayerCacheType = .none
+    
     public var playUrl: URL? {
         willSet {
             self.currentPlayStatus = .unknown
@@ -180,7 +185,9 @@ public class MMPlayerLayer: AVPlayerLayer {
             self.startLoading(isStart: true)
             if let cacheItem = self.cahce.getItem(key: url) , cacheItem.status == .readyToPlay{
                 self.asset = (cacheItem.asset as? AVURLAsset)
-                self.player?.replaceCurrentItem(with: cacheItem)
+                if !self.isStopped {
+                    self.player?.replaceCurrentItem(with: cacheItem)
+                }
             } else {
                 self.asset = AVURLAsset(url: url)
 
@@ -205,8 +212,9 @@ public class MMPlayerLayer: AVPlayerLayer {
                                 self?.cahce.removeAll()
 
                             }
-                            self?.player?.replaceCurrentItem(with: item)
-                            
+                            if !(self?.isStopped)! {
+                                self?.player?.replaceCurrentItem(with: item)
+                            }
                         }
                     }
                 }
@@ -235,7 +243,7 @@ public class MMPlayerLayer: AVPlayerLayer {
         self.setup()
     }
     
-    fileprivate func setup() {
+    func setup() {
         self.player = AVPlayer()
         self.backgroundColor = UIColor.black.cgColor
         self.progressType = .default
@@ -420,7 +428,9 @@ extension MMPlayerLayer {
         
         NotificationCenter.default.addObserver(forName: NSNotification.Name.UIApplicationDidBecomeActive, object: nil, queue: nil, using: { [weak self] (nitification) in
             if self?.isBackgroundPause == false {
-                if UserDefaults.standard.object(forKey: "videoVol") != nil {
+                if self?.isForceMute ?? false {
+                    self?.player?.isMuted = true
+                } else if UserDefaults.standard.object(forKey: "videoVol") != nil {
                     self?.player?.isMuted = UserDefaults.standard.object(forKey: "videoVol") as? Bool ?? false
                 }
                 self?.player?.play()
