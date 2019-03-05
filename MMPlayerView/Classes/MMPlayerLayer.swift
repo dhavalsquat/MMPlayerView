@@ -139,7 +139,8 @@ public class MMPlayerLayer: AVPlayerLayer {
             switch self.currentPlayStatus {
             case .ready:
                 do {
-                    try AVAudioSession.sharedInstance().setCategory(AVAudioSessionCategoryPlayback)
+                    try AVAudioSession.sharedInstance().setCategory(.playback, mode: .default)
+//                    try AVAudioSession.sharedInstance().setCategory(AVAudioSession.Category.playback)
                 }
                 catch {
                     // report for an error
@@ -405,7 +406,7 @@ extension MMPlayerLayer {
     fileprivate func addPlayerObserver() {
         NotificationCenter.default.removeObserver(self)
         if timeObserver == nil {
-            timeObserver = self.player?.addPeriodicTimeObserver(forInterval: CMTimeMake(1, 100), queue: DispatchQueue.main, using: { [weak self] (time) in
+            timeObserver = self.player?.addPeriodicTimeObserver(forInterval: CMTimeMake(value: 1, timescale: 100), queue: DispatchQueue.main, using: { [weak self] (time) in
                 
                 if time.isIndefinite {
                     return
@@ -416,7 +417,7 @@ extension MMPlayerLayer {
             })
         }
         
-        NotificationCenter.default.addObserver(forName: NSNotification.Name.UIApplicationWillResignActive, object: nil, queue: nil, using: { [weak self] (nitification) in
+        NotificationCenter.default.addObserver(forName: UIApplication.willResignActiveNotification, object: nil, queue: nil, using: { [weak self] (nitification) in
             switch self?.currentPlayStatus ?? .unknown {
             case .pause:
                 self?.isBackgroundPause = true
@@ -425,8 +426,8 @@ extension MMPlayerLayer {
             }
             self?.player?.pause()
         })
-        
-        NotificationCenter.default.addObserver(forName: NSNotification.Name.UIApplicationDidBecomeActive, object: nil, queue: nil, using: { [weak self] (nitification) in
+
+        NotificationCenter.default.addObserver(forName:  UIApplication.didBecomeActiveNotification, object: nil, queue: nil, using: { [weak self] (nitification) in
             if self?.isBackgroundPause == false {
                 if self?.isForceMute ?? false {
                     self?.player?.isMuted = true
@@ -439,7 +440,7 @@ extension MMPlayerLayer {
         })
         
         NotificationCenter.default.addObserver(forName: .AVPlayerItemDidPlayToEndTime, object: nil, queue: nil, using: { [weak self] (_) in
-            self?.player?.seek(to: CMTimeMake(0, 1))
+            self?.player?.seek(to: CMTimeMake(value: 0, timescale: 1))
             self?.player?.play()
 //            if let s = self?.currentPlayStatus {
 //                switch s {
