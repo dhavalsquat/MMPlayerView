@@ -8,6 +8,7 @@
 
 import UIKit
 import AVFoundation
+import AVKit
 
 public extension MMPlayerLayer {
     public enum PlayerCacheType {
@@ -73,7 +74,7 @@ public class MMPlayerLayer: AVPlayerLayer {
         willSet {
             bgView.removeFromSuperview()
             self.removeFromSuperlayer()
-            _playView?.removeGestureRecognizer(tapGesture)
+//            _playView?.removeGestureRecognizer(tapGesture)
         } didSet {
             guard let new = _playView else {
                 return
@@ -82,8 +83,8 @@ public class MMPlayerLayer: AVPlayerLayer {
             self.bgView.mPlayFit.layoutFitSuper()
             self.bgView.layoutIfNeeded()
             self.updateCoverConstraint()
-            new.isUserInteractionEnabled = true
-            new.addGestureRecognizer(tapGesture)
+            new.isUserInteractionEnabled = false
+//            new.addGestureRecognizer(tapGesture)
             new.layer.insertSublayer(self, at: 0)
         }
     }
@@ -127,8 +128,9 @@ public class MMPlayerLayer: AVPlayerLayer {
         }
     }
     public var coverView: (UIView & MMPlayerCoverViewProtocol)?
+    public var viewController: UIViewController?
     public var autoPlay = true
-    public var isForceMute = false
+    public var isForceMute = true
     public var isStopped = false
     public var currentPlayStatus: PlayStatus = .unknown {
         didSet {
@@ -147,11 +149,11 @@ public class MMPlayerLayer: AVPlayerLayer {
                 }
                 self.thumbImageView.isHidden = false
                 self.coverView?.isHidden = false
-                if isForceMute {
+//                if isForceMute {
                     self.player?.isMuted = true
-                } else if UserDefaults.standard.object(forKey: "videoVol") != nil {
-                    self.player?.isMuted = UserDefaults.standard.object(forKey: "videoVol") as? Bool ?? false
-                }
+//                } else if UserDefaults.standard.object(forKey: "videoVol") != nil {
+//                    self.player?.isMuted = UserDefaults.standard.object(forKey: "videoVol") as? Bool ?? false
+//                }
                 if self.autoPlay {
                     self.player?.play()
                 }
@@ -351,9 +353,17 @@ public class MMPlayerLayer: AVPlayerLayer {
             return
         default: break
         }
-        self.player?.isMuted = !(self.player?.isMuted)!
-        UserDefaults.standard.set(self.player?.isMuted ?? false, forKey: "videoVol")
-        mmDelegate?.touchInVideoRect(contain: self.player?.isMuted ?? false)
+//        self.player?.isMuted = !(self.player?.isMuted)!
+//        UserDefaults.standard.set(self.player?.isMuted ?? false, forKey: "videoVol")
+//        mmDelegate?.touchInVideoRect(contain: self.player?.isMuted ?? false)
+        
+        if let player = self.player {
+            let playerViewController = AVPlayerViewController()
+            playerViewController.player = player
+//            self.delegate?.parentController().present(playerViewController, animated: true) {
+//                playerViewController.player!.play()
+//            }
+        }
         if let p = self.playView {
             let point = gesture.location(in: p)
             if self.videoRect.isEmpty || self.videoRect.contains(point) {
@@ -429,11 +439,11 @@ extension MMPlayerLayer {
 
         NotificationCenter.default.addObserver(forName:  UIApplication.didBecomeActiveNotification, object: nil, queue: nil, using: { [weak self] (nitification) in
             if self?.isBackgroundPause == false {
-                if self?.isForceMute ?? false {
+//                if self?.isForceMute ?? false {
                     self?.player?.isMuted = true
-                } else if UserDefaults.standard.object(forKey: "videoVol") != nil {
-                    self?.player?.isMuted = UserDefaults.standard.object(forKey: "videoVol") as? Bool ?? false
-                }
+//                } else if UserDefaults.standard.object(forKey: "videoVol") != nil {
+//                    self?.player?.isMuted = UserDefaults.standard.object(forKey: "videoVol") as? Bool ?? false
+//                }
                 self?.player?.play()
             }
             self?.isBackgroundPause = false
