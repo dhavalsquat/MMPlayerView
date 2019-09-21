@@ -509,10 +509,10 @@ extension MMPlayerLayer {
     }
     
     func removeAllObserver() {
-//        if let observer = videoRectObservation {
-//            observer.invalidate()
-//            self.videoRectObservation = nil
-//        }
+        if let observer = videoRectObservation {
+            observer.invalidate()
+            self.videoRectObservation = nil
+        }
         boundsObservation = nil
         frameObservation = nil
         mutedObservation = nil
