@@ -23,7 +23,10 @@ class MMPlayerItem: AVPlayerItem {
     convenience init(asset: AVAsset, delegate: MMPlayerItemProtocol?) {
         self.init(asset: asset, automaticallyLoadedAssetKeys: nil)
         self.delegate = delegate
-      
+        self.setup()
+    }
+    
+    func setup() {
         statusObservation = self.observe(\.status, changeHandler: { [weak self] (item, _) in
             self?.delegate?.status(change: item.status)
         })
@@ -36,14 +39,11 @@ class MMPlayerItem: AVPlayerItem {
     }
     
     deinit {
-        if let observer = statusObservation {
-            observer.invalidate()
-        }
-        if let observer = keepUpObservation {
-            observer.invalidate()
-        }
-        if let observer = emptyObservation {
-            observer.invalidate()
-        }
+        statusObservation?.invalidate()
+        keepUpObservation?.invalidate()
+        emptyObservation?.invalidate()
+        self.statusObservation = nil
+        self.keepUpObservation = nil
+        self.emptyObservation = nil
     }
 }
