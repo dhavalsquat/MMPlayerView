@@ -38,15 +38,12 @@ class MMPlayerItem: AVPlayerItem {
     deinit {
         if let observer = statusObservation {
             observer.invalidate()
-            self.statusObservation = nil
         }
         if let observer = keepUpObservation {
             observer.invalidate()
-            self.keepUpObservation = nil
         }
         if let observer = emptyObservation {
             observer.invalidate()
-            self.emptyObservation = nil
         }
     }
 }
