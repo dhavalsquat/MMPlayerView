@@ -464,11 +464,11 @@ extension MMPlayerLayer {
 //            }
         })
         
-        videoRectObservation = self.observe(\.videoRect, options: [.new, .old]) { [weak self] (player, change) in
-            if change.newValue != change.oldValue {
-                self?.updateCoverConstraint()
-            }
-        }
+//        videoRectObservation = self.observe(\.videoRect, options: [.new, .old]) { [weak self] (player, change) in
+//            if change.newValue != change.oldValue {
+//                self?.updateCoverConstraint()
+//            }
+//        }
 
         frameObservation = bgView.observe(\.frame, options: [.new, .old], changeHandler: { [weak self] (view, change) in
             if change.newValue != change.oldValue, change.newValue != .zero {
@@ -509,11 +509,10 @@ extension MMPlayerLayer {
     }
     
     func removeAllObserver() {
-        if let observer = videoRectObservation {
-            observer.invalidate()
-            self.videoRectObservation = nil
-        }
-        videoRectObservation = nil
+//        if let observer = videoRectObservation {
+//            observer.invalidate()
+//            self.videoRectObservation = nil
+//        }
         boundsObservation = nil
         frameObservation = nil
         mutedObservation = nil
