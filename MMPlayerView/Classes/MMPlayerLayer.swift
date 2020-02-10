@@ -149,11 +149,11 @@ public class MMPlayerLayer: AVPlayerLayer {
                 }
                 self.thumbImageView.isHidden = false
                 self.coverView?.isHidden = false
-//                if isForceMute {
+                if isForceMute {
                     self.player?.isMuted = true
-//                } else if UserDefaults.standard.object(forKey: "videoVol") != nil {
-//                    self.player?.isMuted = UserDefaults.standard.object(forKey: "videoVol") as? Bool ?? false
-//                }
+                } else if UserDefaults.standard.object(forKey: "videoVol") != nil {
+                    self.player?.isMuted = UserDefaults.standard.object(forKey: "videoVol") as? Bool ?? false
+                }
                 if self.autoPlay {
                     self.player?.play()
                 }
@@ -166,8 +166,11 @@ public class MMPlayerLayer: AVPlayerLayer {
                 self.coverView?.isHidden = false
                 self.startLoading(isStart: false)
             default:
-                self.thumbImageView.isHidden = true
-                self.coverView?.isHidden = false
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                    // do stuff 42 seconds later
+                    self.thumbImageView.isHidden = true
+                    self.coverView?.isHidden = false
+                }
                 break
             }
         }
@@ -439,11 +442,11 @@ extension MMPlayerLayer {
 
         NotificationCenter.default.addObserver(forName:  UIApplication.didBecomeActiveNotification, object: nil, queue: nil, using: { [weak self] (nitification) in
             if self?.isBackgroundPause == false {
-//                if self?.isForceMute ?? false {
+                if self?.isForceMute ?? false {
                     self?.player?.isMuted = true
-//                } else if UserDefaults.standard.object(forKey: "videoVol") != nil {
-//                    self?.player?.isMuted = UserDefaults.standard.object(forKey: "videoVol") as? Bool ?? false
-//                }
+                } else if UserDefaults.standard.object(forKey: "videoVol") != nil {
+                    self?.player?.isMuted = UserDefaults.standard.object(forKey: "videoVol") as? Bool ?? false
+                }
                 self?.player?.play()
             }
             self?.isBackgroundPause = false
