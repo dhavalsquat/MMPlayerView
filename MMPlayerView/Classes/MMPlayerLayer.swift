@@ -62,10 +62,14 @@ public class MMPlayerLayer: AVPlayerLayer {
     lazy var  bgView: UIView = {
         let v = UIView()
         v.translatesAutoresizingMaskIntoConstraints = false
+        v.addSubview(self.thumbImageViewBlur)
         v.addSubview(self.thumbImageView)
         v.addSubview(self.indicator)
+        
+        self.thumbImageViewBlur.mPlayFit.layoutFitSuper()
         self.indicator.mPlayFit.layoutFitSuper()
         self.thumbImageView.mPlayFit.layoutFitSuper()
+        
         v.frame = .zero
         v.backgroundColor = UIColor.clear
         return v
@@ -98,6 +102,7 @@ public class MMPlayerLayer: AVPlayerLayer {
     
     public var coverFitType: MMPlayerLayer.CoverFitType = .fitToVideoRect {
         didSet {
+            thumbImageViewBlur.contentMode = .scaleAspectFill
             thumbImageView.contentMode = (coverFitType == .fitToVideoRect) ? .scaleAspectFit : .scaleAspectFill
             self.updateCoverConstraint()
         }
@@ -113,6 +118,12 @@ public class MMPlayerLayer: AVPlayerLayer {
         }
     }
     public lazy var thumbImageView: UIImageView = {
+        let t = UIImageView()
+        t.clipsToBounds = true
+        return t
+    }()
+    
+    public lazy var thumbImageViewBlur: UIImageView = {
         let t = UIImageView()
         t.clipsToBounds = true
         return t
@@ -147,6 +158,7 @@ public class MMPlayerLayer: AVPlayerLayer {
                 catch {
                     // report for an error
                 }
+                self.thumbImageViewBlur.isHidden = false
                 self.thumbImageView.isHidden = false
                 self.coverView?.isHidden = false
                 if isForceMute {
@@ -159,16 +171,19 @@ public class MMPlayerLayer: AVPlayerLayer {
                 }
             case .failed(err: _):
                 self.thumbImageView.isHidden = false
+                self.thumbImageViewBlur.isHidden = false
                 self.coverView?.isHidden = false
                 self.startLoading(isStart: false)
             case .unknown:
                 self.thumbImageView.isHidden = false
+                self.thumbImageViewBlur.isHidden = false
                 self.coverView?.isHidden = false
                 self.startLoading(isStart: false)
             default:
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
                     // do stuff 42 seconds later
                     self.thumbImageView.isHidden = true
+                    self.thumbImageViewBlur.isHidden = true
                     self.coverView?.isHidden = false
                 }
                 break
